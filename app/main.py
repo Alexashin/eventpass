@@ -94,6 +94,15 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return FileResponse(
+        "app/static/favicon.ico",
+        media_type="image/x-icon",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
 @app.middleware("http")
 async def request_logging(request: Request, call_next):
     request_id = secrets.token_hex(8)
