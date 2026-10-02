@@ -1,0 +1,114 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    mem_limit: 512m
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-raneparty}
+      POSTGRES_USER: ${POSTGRES_USER:-raneparty}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-raneparty} -d ${POSTGRES_DB:-raneparty}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    logging:
+      options: {max-size: "10m", max-file: "3"}
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    mem_limit: 160m
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    logging:
+      options: {max-size: "10m", max-file: "3"}
+
+  app:
+    build: .
+    restart: unless-stopped
+    mem_limit: 512m
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-raneparty}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-raneparty}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - receipt_data:/app/data/receipts
+    command: ["sh", "-c", "python scripts/migrate.py && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips=* --no-access-log"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      options: {max-size: "10m", max-file: "3"}
+
+  bot:
+    build: .
+    restart: unless-stopped
+    mem_limit: 768m
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-raneparty}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-raneparty}
+    depends_on:
+      app:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - receipt_data:/app/data/receipts
+    command: ["python", "-m", "app.bot"]
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      options: {max-size: "10m", max-file: "3"}
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    mem_limit: 160m
+    environment:
+      DOMAIN: ${DOMAIN:-raneparty.ru}
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      options: {max-size: "10m", max-file: "3"}
+
+volumes:
+  postgres_data:
+  redis_data:
+  receipt_data:
+  caddy_data:
+  caddy_config:

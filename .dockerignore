@@ -1,0 +1,11 @@
+.env
+.git
+.gitignore
+.pytest_cache
+**/__pycache__
+**/*.pyc
+*.db
+tests
+requirements-dev.txt
+data/receipts/*
+!data/receipts/.gitkeep

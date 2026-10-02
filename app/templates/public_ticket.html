@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080b14">
+  <link rel="stylesheet" href="/static/app.css">
+  <title>{{ ticket.number }} · {{ settings.event_name }}</title>
+</head>
+<body class="public-body">
+<main class="public-ticket">
+  <div class="ticket-orb orb-a"></div><div class="ticket-orb orb-b"></div>
+  <div class="ticket-topline"><span>{{ settings.event_age }}</span><span>{{ ticket.number }}</span></div>
+  <div class="ticket-kicker">INVITATION</div>
+  <h1>{{ settings.event_name }}</h1>
+  <h2>{{ ticket.guest_name }}</h2>
+  <div class="ticket-meta">Именное приглашение · 1 билет = 1 проход</div>
+  <div class="qr-wrap"><img class="public-qr" src="/ticket/{{ ticket.token }}/qr.png" alt="QR-код билета"></div>
+  <div class="date-line">{{ settings.event_date_display }} · {{ settings.event_start }}</div>
+  <div class="offline-note">
+    <b>Сделай скриншот билета заранее</b>
+    <span>На входе интернет может работать нестабильно. QR со скриншота подходит.</span>
+  </div>
+  <div class="ticket-actions">
+    <a class="btn primary" href="/ticket/{{ ticket.token }}/download.png">Скачать PNG</a>
+    <a class="btn" href="/ticket/{{ ticket.token }}/download.pdf">Скачать PDF</a>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% block content %}
+<div class="narrow">
+  <div class="page-head"><div><div class="eyebrow">Ручная выдача</div><h1>Новый билет</h1><p class="muted">Билет сразу активен. Один билет - один проход.</p></div></div>
+  {% if error %}<div class="alert bad">{{ error }}</div>{% endif %}
+  <form method="post" class="panel stack">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <label>Имя и фамилия<input name="guest_name" maxlength="200" placeholder="Иван Иванов" required autofocus autocomplete="off"></label>
+    <button class="btn primary" type="submit">Создать приглашение</button>
+  </form>
+</div>
+{% endblock %}

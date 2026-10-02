@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% block content %}
+<div class="page-head"><div><div class="eyebrow">Owner</div><h1>Пользователи</h1><p class="muted">Регистрации нет - аккаунты создаёт главный администратор.</p></div></div>
+{% if request.query_params.get('error') %}<div class="alert bad">Логин от 3 символов, пароль минимум 10 символов.</div>{% endif %}
+{% if request.query_params.get('exists') %}<div class="alert bad">Такой логин уже существует.</div>{% endif %}
+<div class="grid2">
+<section class="panel"><h2>Создать аккаунт</h2><form method="post" action="/admin/users" class="stack"><input type="hidden" name="csrf" value="{{ csrf_token }}"><label>Логин<input name="username" minlength="3" maxlength="80" required autocomplete="off"></label><label>Пароль<input name="password" type="password" minlength="10" required autocomplete="new-password"></label><label>Роль<select name="role"><option>ADMIN</option><option>CONTROLLER</option></select></label><button class="btn primary" type="submit">Создать</button></form></section>
+<section class="panel"><h2>Аккаунты</h2><div class="list">{% for u in users %}<div class="list-row"><div><b>{{ u.username }}</b><small>{{ u.role.value }} · {% if u.is_active %}активен{% else %}заблокирован{% endif %}</small></div>{% if u.role.value != 'OWNER' %}<form method="post" action="/admin/users/{{ u.id }}/toggle"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="btn small" type="submit">{% if u.is_active %}Блокировать{% else %}Включить{% endif %}</button></form>{% endif %}</div>{% endfor %}</div></section>
+</div>
+{% endblock %}

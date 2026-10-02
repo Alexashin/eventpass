@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block content %}
+<div class="page-head"><div><div class="eyebrow">Управление</div><h1>Билеты</h1><p class="muted">Поиск, статусы и ручная выдача.</p></div>{% if user.role.value in ['OWNER','ADMIN'] %}<a class="btn primary" href="/admin/tickets/new">+ Выписать</a>{% endif %}</div>
+<form class="filters" method="get">
+  <input name="q" value="{{ q }}" placeholder="Имя, фамилия или номер">
+  <select name="status_filter"><option value="">Все статусы</option><option value="ACTIVE" {% if status_filter=='ACTIVE' %}selected{% endif %}>Активные</option><option value="USED" {% if status_filter=='USED' %}selected{% endif %}>Использованные</option><option value="CANCELLED" {% if status_filter=='CANCELLED' %}selected{% endif %}>Аннулированные</option></select>
+  <button class="btn" type="submit">Найти</button>
+</form>
+<div class="table-wrap desktop-table"><table><thead><tr><th>№</th><th>Гость</th><th>Статус</th><th>Источник</th><th>Создан</th><th>Проход</th><th>Контролёр</th></tr></thead><tbody>{% for t in tickets %}<tr class="clickrow" data-href="/admin/tickets/{{ t.id }}"><td><a href="/admin/tickets/{{ t.id }}">{{ t.number }}</a></td><td><b>{{ t.guest_name }}</b></td><td><span class="badge {{ t.status.value|lower }}">{{ t.status.value }}</span></td><td>{{ t.source.value }}</td><td>{{ t.created_at.strftime('%d.%m %H:%M') }}</td><td>{{ t.used_at.strftime('%d.%m %H:%M') if t.used_at else '—' }}</td><td>{{ t.used_by_label or '—' }}</td></tr>{% else %}<tr><td colspan="7" class="muted">Ничего не найдено</td></tr>{% endfor %}</tbody></table></div>
+<div class="ticket-cards">{% for t in tickets %}<a class="ticket-row-card" href="/admin/tickets/{{ t.id }}"><div><b>{{ t.guest_name }}</b><small>{{ t.number }} · {{ t.source.value }}</small></div><div class="ticket-row-meta"><span class="badge {{ t.status.value|lower }}">{{ t.status.value }}</span><small>{{ t.used_at.strftime('%d.%m %H:%M') if t.used_at else t.created_at.strftime('%d.%m %H:%M') }}</small></div></a>{% else %}<div class="panel muted">Ничего не найдено</div>{% endfor %}</div>
+{% endblock %}

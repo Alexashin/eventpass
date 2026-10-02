@@ -1,0 +1,29 @@
+{% extends 'base.html' %}{% block content %}
+<div class="page-head"><div><div class="eyebrow">{{ ticket.number }}</div><h1>{{ ticket.guest_name }}</h1><span class="badge {{ ticket.status.value|lower }}">{{ ticket.status.value }}</span></div><a class="btn" href="/admin/tickets">← К списку</a></div>
+<div class="grid2">
+  <section class="panel ticket-admin-card">
+    <img class="qr-small" src="/ticket/{{ ticket.token }}/qr.png" alt="QR {{ ticket.number }}">
+    <div class="ticket-admin-info">
+      <p><b>Публичная ссылка</b></p>
+      <div class="copyrow"><input id="public-url" readonly value="{{ public_url }}"><button class="btn" type="button" data-copy-target="#public-url">Копировать</button></div>
+      <div class="actions"><a class="btn" target="_blank" rel="noopener" href="{{ public_url }}">Открыть</a><a class="btn" href="/ticket/{{ ticket.token }}/download.png">PNG</a><a class="btn" href="/ticket/{{ ticket.token }}/download.pdf">PDF</a></div>
+      <p class="muted">Источник: {{ ticket.source.value }} · Создан: {{ ticket.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+      {% if ticket.sent_at %}<p>Отправлен: {{ ticket.sent_at.strftime('%d.%m.%Y %H:%M') }}</p>{% endif %}
+    </div>
+  </section>
+  {% if user.role.value in ['OWNER','ADMIN'] %}
+  <section class="panel">
+    <h2>Управление</h2>
+    <div class="actions">
+      <form method="post" action="/admin/tickets/{{ ticket.id }}/mark-sent"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="btn" type="submit">Отметить отправленным</button></form>
+      {% if ticket.status.value == 'ACTIVE' %}
+      <form method="post" action="/admin/tickets/{{ ticket.id }}/cancel" data-confirm="Аннулировать билет?"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="btn danger" type="submit">Аннулировать</button></form>
+      {% else %}
+      <form method="post" action="/admin/tickets/{{ ticket.id }}/restore" data-confirm="Вернуть билет в активные? Он снова сможет пройти."><input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="btn warning" type="submit">Вернуть в активные</button></form>
+      {% endif %}
+    </div>
+    {% if ticket.used_at %}<div class="detail-list"><p>Проход <b>{{ ticket.used_at.strftime('%d.%m.%Y %H:%M:%S') }}</b></p><p>Контролёр <b>{{ ticket.used_by_label }}</b></p></div>{% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

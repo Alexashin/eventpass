@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080b14">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+  <title>{{ settings.event_name }} · Control</title>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/admin"><span class="brand-mark">R</span><span>RANE PASS</span></a>
+  {% if user %}
+  <nav class="main-nav" aria-label="Админ-навигация">
+    <a href="/admin">Главная</a>
+    <a href="/admin/tickets">Билеты</a>
+    {% if user.role.value in ['OWNER','ADMIN'] %}<a href="/admin/purchases">Покупки</a>{% endif %}
+    {% if user.role.value == 'OWNER' %}<a href="/admin/users">Пользователи</a>{% endif %}
+    {% if user.role.value in ['OWNER','ADMIN'] %}<a href="/admin/logs">Журнал</a>{% endif %}
+  </nav>
+  <div class="userbox">
+    <span>{{ user.username }} · {{ user.role.value }}</span>
+    <form method="post" action="/logout">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <button class="linkbtn" type="submit">Выйти</button>
+    </form>
+  </div>
+  {% endif %}
+</header>
+<main class="wrap">{% block content %}{% endblock %}</main>
+</body>
+</html>

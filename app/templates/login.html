@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080b14">
+  <link rel="stylesheet" href="/static/app.css">
+  <title>Вход · {{ settings.event_name }}</title>
+</head>
+<body class="centered">
+  <main class="login-card">
+    <div class="login-mark">R</div>
+    <div class="eyebrow">staff access</div>
+    <h1>RANE PASS</h1>
+    <p class="muted">Панель персонала {{ settings.event_name }}</p>
+    {% if error %}<div class="alert bad">{{ error }}</div>{% endif %}
+    <form method="post" action="/login" class="stack">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <label>Логин<input name="username" required autocomplete="username" maxlength="80"></label>
+      <label>Пароль<input type="password" name="password" required autocomplete="current-password"></label>
+      <button class="btn primary" type="submit">Войти</button>
+    </form>
+  </main>
+</body>
+</html>

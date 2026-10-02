@@ -1,0 +1,3 @@
+{% extends 'base.html' %}{% block content %}
+<div class="scanner-shell"><div class="page-head"><div><h1>Сканер билетов</h1><p class="muted">Сканирование само по себе билет не гасит. Нужна кнопка «Пропустить».</p></div></div><div id="net-state" class="net-state">Проверяем соединение…</div><div class="scanner-box"><video id="video" playsinline muted></video><div class="scan-frame"></div></div><div class="actions center"><button id="start-btn" class="btn primary">Включить камеру</button></div><div class="manual"><input id="manual-token" placeholder="Или вставь ссылку/токен"><button id="manual-btn" class="btn">Проверить</button></div><div id="result"></div></div><script src="/static/scanner.js"></script>
+{% endblock %}

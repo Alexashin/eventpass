@@ -1,0 +1,31 @@
+{% extends 'base.html' %}{% block content %}
+<section class="hero">
+  <div>
+    <div class="eyebrow">{{ settings.event_age }} · {{ settings.event_date_display }} · {{ settings.event_start }}</div>
+    <h1>{{ settings.event_name }}</h1>
+    <p>Билеты, покупки и контроль входа в одном месте.</p>
+  </div>
+  {% if user.role.value in ['OWNER','ADMIN'] %}<a class="btn primary" href="/admin/tickets/new">+ Выписать билет</a>{% endif %}
+</section>
+<section class="stats">
+  <div class="stat"><b>{{ counts.all }}</b><span>Всего</span></div>
+  <div class="stat green"><b>{{ counts.active }}</b><span>Активных</span></div>
+  <div class="stat violet"><b>{{ counts.used }}</b><span>Прошли</span></div>
+  <div class="stat red"><b>{{ counts.cancelled }}</b><span>Аннулировано</span></div>
+  {% if user.role.value in ['OWNER','ADMIN'] %}<div class="stat cyan"><b>{{ counts.pending }}</b><span>Ждут проверки</span></div>{% endif %}
+</section>
+<div class="grid2">
+  <section class="panel">
+    <div class="panel-head"><h2>Быстрые действия</h2></div>
+    <div class="actions">
+      {% if user.role.value in ['OWNER','ADMIN'] %}<a class="btn" href="/admin/tickets/new">Создать билет</a><a class="btn" href="/admin/purchases">Проверить покупки</a>{% endif %}
+      <a class="btn" href="/admin/tickets">Найти билет</a>
+    </div>
+    <p class="muted small-note">На входе сотрудник один раз авторизуется в браузере, после чего сканирует QR штатной камерой телефона. По тому же QR гостю показывается обычный билет, сотруднику - служебная проверка.</p>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>Последние проходы</h2></div>
+    {% if recent %}<div class="list">{% for t in recent %}<div class="list-row"><div><b>{{ t.guest_name }}</b><small>{{ t.number }}</small></div><div class="right"><span>{{ t.used_at.strftime('%H:%M') if t.used_at else '' }}</span><small>{{ t.used_by_label or '—' }}</small></div></div>{% endfor %}</div>{% else %}<p class="muted">Пока никто не прошёл.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

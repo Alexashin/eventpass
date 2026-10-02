@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="check-shell">
+  <div class="page-head compact-head">
+    <div><div class="eyebrow">Контроль входа</div><h1>{{ ticket.number }}</h1><p class="muted">QR открыт на авторизованном устройстве сотрудника.</p></div>
+  </div>
+
+  {% if ticket.status.value == 'ACTIVE' %}
+  <section class="check-card check-good">
+    <div class="check-icon">✓</div>
+    <div class="staff-status">БИЛЕТ ДЕЙСТВИТЕЛЕН</div>
+    <h2>{{ ticket.guest_name }}</h2>
+    <div class="ticket-number-big">{{ ticket.number }}</div>
+    <p>Открытие QR само по себе билет не погашает.</p>
+    <form method="post" action="/q/{{ ticket.token }}/use">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <button class="btn primary huge" type="submit">ПРОПУСТИТЬ</button>
+    </form>
+  </section>
+  {% elif ticket.status.value == 'USED' %}
+  <section class="check-card check-bad">
+    <div class="check-icon">×</div>
+    <div class="staff-status">БИЛЕТ УЖЕ ИСПОЛЬЗОВАН</div>
+    <h2>{{ ticket.guest_name }}</h2>
+    <div class="ticket-number-big">{{ ticket.number }}</div>
+    <p>Проход: {{ ticket.used_at.strftime('%d.%m.%Y %H:%M:%S') if ticket.used_at else '—' }}</p>
+    <p>Контролёр: {{ ticket.used_by_label or '—' }}</p>
+    {% if user.role.value in ['OWNER','ADMIN'] %}<a class="btn warning" href="/admin/tickets/{{ ticket.id }}">Открыть в админке</a>{% endif %}
+  </section>
+  {% else %}
+  <section class="check-card check-bad">
+    <div class="check-icon">×</div>
+    <div class="staff-status">БИЛЕТ АННУЛИРОВАН</div>
+    <h2>{{ ticket.guest_name }}</h2>
+    <div class="ticket-number-big">{{ ticket.number }}</div>
+    {% if user.role.value in ['OWNER','ADMIN'] %}<a class="btn warning" href="/admin/tickets/{{ ticket.id }}">Открыть в админке</a>{% endif %}
+  </section>
+  {% endif %}
+
+  <div class="staff-bottom-actions">
+    <a href="/admin" class="btn">В админку</a>
+    <form method="post" action="/logout">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <button class="btn danger" type="submit">Выйти из аккаунта</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

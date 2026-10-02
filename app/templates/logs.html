@@ -1,0 +1,4 @@
+{% extends 'base.html' %}{% block content %}
+<div class="page-head"><div><div class="eyebrow">Аудит</div><h1>Журнал действий</h1><p class="muted">Критические действия персонала и выдача билетов.</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>Время</th><th>Действие</th><th>Кто</th><th>Объект</th><th>Детали</th></tr></thead><tbody>{% for log in logs %}<tr><td>{{ log.created_at.strftime('%d.%m %H:%M:%S') }}</td><td>{{ log.action }}</td><td>{{ log.actor_label or 'system' }}</td><td>{{ log.entity_type or '—' }} {{ log.entity_id or '' }}</td><td>{{ log.details or '—' }}</td></tr>{% else %}<tr><td colspan="5" class="muted">Журнал пуст</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}
